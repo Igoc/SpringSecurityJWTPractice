@@ -3,7 +3,7 @@ package com.example.springsecurityjwt.controller;
 import com.example.springsecurityjwt.dto.member.*;
 import com.example.springsecurityjwt.service.MemberService;
 import com.example.springsecurityjwt.util.JwtTokenProvider;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;

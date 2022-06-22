@@ -6,12 +6,12 @@ import com.example.springsecurityjwt.dto.member.MemberLoginResponseDto;
 import com.example.springsecurityjwt.dto.member.MemberSaveRequestDto;
 import com.example.springsecurityjwt.dto.member.MemberSaveResponseDto;
 import com.example.springsecurityjwt.repository.MemberRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
