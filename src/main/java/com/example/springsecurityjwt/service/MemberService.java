@@ -36,7 +36,7 @@ public class MemberService {
         Member member = memberRepository.findById(memberLoginRequestDto.getId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자"));
 
-        if (passwordEncoder.matches(member.getPassword(), memberLoginRequestDto.getPassword())) {
+        if (!passwordEncoder.matches(memberLoginRequestDto.getPassword(), member.getPassword())) {
             throw new IllegalArgumentException("유효하지 않은 비밀번호");
         }
 
