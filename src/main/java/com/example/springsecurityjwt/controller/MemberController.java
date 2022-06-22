@@ -29,7 +29,7 @@ public class MemberController {
     public MemberTokenResponseDto login(@RequestBody MemberLoginRequestDto memberLoginRequestDto) {
         MemberLoginResponseDto result = memberService.login(memberLoginRequestDto);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(result.getId(), null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(result.getId(), null, null);
         String token = JwtTokenProvider.generateToken(authentication);
 
         return MemberTokenResponseDto.builder()
