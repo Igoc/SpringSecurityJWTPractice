@@ -1,5 +1,7 @@
 package com.example.springsecurityjwt.config;
 
+import com.example.springsecurityjwt.handler.AccessDeniedExceptionHandler;
+import com.example.springsecurityjwt.handler.AuthenticationExceptionHandler;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,10 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated() // 인증된 사용자만 요청 가능
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 비활성화
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(new AuthenticationExceptionHandler()) // 인증 예외 핸들러 등록
+                .accessDeniedHandler(new AccessDeniedExceptionHandler()) // 인가 예외 핸들러 등록
                 .and()
                 .httpBasic().disable() // HTTP Basic 인증 비활성화
                 .formLogin().disable() // Form 로그인 비활성화
