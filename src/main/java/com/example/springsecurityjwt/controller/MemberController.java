@@ -1,5 +1,7 @@
 package com.example.springsecurityjwt.controller;
 
+import com.example.springsecurityjwt.dto.MemberLoginRequestDto;
+import com.example.springsecurityjwt.dto.MemberLoginResponseDto;
 import com.example.springsecurityjwt.dto.MemberRegisterRequestDto;
 import com.example.springsecurityjwt.dto.MemberRegisterResponseDto;
 import com.example.springsecurityjwt.service.MemberService;
@@ -31,6 +33,13 @@ public class MemberController {
     @PostMapping("")
     public ResponseEntity<MemberRegisterResponseDto> register(@RequestBody @Valid final MemberRegisterRequestDto requestDto) {
         final MemberRegisterResponseDto result = memberService.register(requestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<MemberLoginResponseDto> login(@RequestBody @Valid final MemberLoginRequestDto requestDto) {
+        final MemberLoginResponseDto result = memberService.login(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }

@@ -36,6 +36,7 @@ public class WebSecurityConfig {
                 .antMatchers(HttpMethod.GET, "/", "/register").permitAll() // View는 모든 사용자가 요청 가능
                 .antMatchers(HttpMethod.HEAD, "/api/member/email/**").permitAll() // 이메일 존재 여부 체크 API는 모든 사용자가 요청 가능
                 .antMatchers(HttpMethod.POST, "/api/member").permitAll() // 회원가입 API는 모든 사용자가 요청 가능
+                .antMatchers(HttpMethod.POST, "/api/member/login").permitAll() // 로그인 API는 모든 사용자가 요청 가능
                 .anyRequest().authenticated() // 인증된 사용자만 요청 가능
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 비활성화

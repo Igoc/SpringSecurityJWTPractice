@@ -1,5 +1,6 @@
 package com.example.springsecurityjwt.handler;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.example.springsecurityjwt.exception.MemberException;
 import com.example.springsecurityjwt.status.MemberStatus;
 import lombok.Getter;
@@ -50,6 +51,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Constraint violation exception occurrence: {}", messages);
 
         return ResponseEntity.badRequest().body(new ExceptionResponse(messages));
+    }
+
+    @ExceptionHandler({JWTCreationException.class})
+    public ResponseEntity<Object> handleJWTCreationException(final JWTCreationException ex) {
+        final String message = ex.getMessage();
+
+        log.warn("JWT creation exception occurrence: {}", message);
+
+        return ResponseEntity.internalServerError().body(new ExceptionResponse(List.of(message)));
     }
 
     @ExceptionHandler({MemberException.class})
