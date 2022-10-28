@@ -5,3 +5,7 @@ security:
     allowed-methods: GET, POST, PUT, DELETE
     allowed-origins: http://localhost:8080
     max-age: 1800
+
+  jwt:
+    secret-key: secret
+    valid-seconds: 60

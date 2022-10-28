@@ -3,6 +3,8 @@ package com.example.springsecurityjwt.config;
 import com.example.springsecurityjwt.handler.AccessDeniedExceptionHandler;
 import com.example.springsecurityjwt.handler.AuthenticationExceptionHandler;
 import com.example.springsecurityjwt.properties.SecurityCorsProperties;
+import com.example.springsecurityjwt.properties.SecurityJwtProperties;
+import com.example.springsecurityjwt.utility.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -81,6 +83,11 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtProvider jwtProvider(final SecurityJwtProperties properties) {
+        return new JwtProvider(properties);
     }
 
 }
