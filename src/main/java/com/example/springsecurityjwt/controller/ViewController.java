@@ -16,4 +16,9 @@ public class ViewController {
         return "register";
     }
 
+    @GetMapping("/login")
+    public String directLoginPage() {
+        return "login";
+    }
+
 }
