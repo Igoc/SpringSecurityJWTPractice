@@ -11,4 +11,9 @@ public class ViewController {
         return "index";
     }
 
+    @GetMapping("/register")
+    public String directRegisterPage() {
+        return "register";
+    }
+
 }
