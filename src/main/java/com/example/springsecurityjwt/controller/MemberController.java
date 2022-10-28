@@ -1,14 +1,15 @@
 package com.example.springsecurityjwt.controller;
 
+import com.example.springsecurityjwt.dto.MemberRegisterRequestDto;
+import com.example.springsecurityjwt.dto.MemberRegisterResponseDto;
 import com.example.springsecurityjwt.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
@@ -25,6 +26,13 @@ public class MemberController {
         return (memberService.checkEmailExistence(email)) ?
                 (ResponseEntity.ok().build()) :
                 (ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("")
+    public ResponseEntity<MemberRegisterResponseDto> register(@RequestBody @Valid final MemberRegisterRequestDto requestDto) {
+        final MemberRegisterResponseDto result = memberService.register(requestDto);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
 }

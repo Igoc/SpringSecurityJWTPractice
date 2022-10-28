@@ -1,5 +1,7 @@
 package com.example.springsecurityjwt.handler;
 
+import com.example.springsecurityjwt.exception.MemberException;
+import com.example.springsecurityjwt.status.MemberStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Constraint violation exception occurrence: {}", messages);
 
         return ResponseEntity.badRequest().body(new ExceptionResponse(messages));
+    }
+
+    @ExceptionHandler({MemberException.class})
+    public ResponseEntity<Object> handleMemberException(final MemberException ex) {
+        final MemberStatus status = ex.getStatus();
+
+        log.warn("Member exception occurrence: {}", status.getMessage());
+
+        return ResponseEntity.status(status.getHttpStatus()).body(new ExceptionResponse(List.of(status.getMessage())));
     }
 
     @RequiredArgsConstructor

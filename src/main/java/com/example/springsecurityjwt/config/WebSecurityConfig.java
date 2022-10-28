@@ -12,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -31,6 +33,7 @@ public class WebSecurityConfig {
         http.authorizeRequests() // 스프링 시큐리티 적용, 선택적으로 적용되어야 하는 보안 구성 설정에 사용 (권한에 따른 요청 허용 등)
                 .antMatchers(HttpMethod.GET, "/").permitAll() // View는 모든 사용자가 요청 가능
                 .antMatchers(HttpMethod.HEAD, "/api/member/email/**").permitAll() // 이메일 존재 여부 체크 API는 모든 사용자가 요청 가능
+                .antMatchers(HttpMethod.POST, "/api/member").permitAll() // 회원가입 API는 모든 사용자가 요청 가능
                 .anyRequest().authenticated() // 인증된 사용자만 요청 가능
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 비활성화
@@ -73,6 +76,11 @@ public class WebSecurityConfig {
         corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration); // CORS 정책 적용 범위를 모든 경로로 설정
 
         return corsConfigurationSource;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
 }
