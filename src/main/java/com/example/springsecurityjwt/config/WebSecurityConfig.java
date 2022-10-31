@@ -4,19 +4,31 @@ import com.example.springsecurityjwt.handler.AccessDeniedExceptionHandler;
 import com.example.springsecurityjwt.handler.AuthenticationExceptionHandler;
 import com.example.springsecurityjwt.properties.SecurityCorsProperties;
 import com.example.springsecurityjwt.properties.SecurityJwtProperties;
+import com.example.springsecurityjwt.security.authentication.MemberAuthenticationConverter;
+import com.example.springsecurityjwt.security.authentication.MemberAuthenticationProvider;
+import com.example.springsecurityjwt.security.userdetails.MemberDetailsService;
 import com.example.springsecurityjwt.utility.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.*;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
@@ -31,7 +43,8 @@ public class WebSecurityConfig {
     private final SecurityCorsProperties securityCorsProperties;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(final HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http,
+                                                   final AuthenticationFilter authenticationFilter) throws Exception {
         http.authorizeRequests() // 스프링 시큐리티 적용, 선택적으로 적용되어야 하는 보안 구성 설정에 사용 (권한에 따른 요청 허용 등)
                 .antMatchers(HttpMethod.GET, "/", "/register", "/login").permitAll() // View는 모든 사용자가 요청 가능
                 .antMatchers(HttpMethod.HEAD, "/api/member/email/**").permitAll() // 이메일 존재 여부 체크 API는 모든 사용자가 요청 가능
@@ -42,8 +55,8 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 비활성화
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(new AuthenticationExceptionHandler()) // 인증 예외 핸들러 등록
-                .accessDeniedHandler(new AccessDeniedExceptionHandler()) // 인가 예외 핸들러 등록
+                .authenticationEntryPoint(authenticationEntryPoint()) // 인증 예외 핸들러 등록
+                .accessDeniedHandler(accessDeniedHandler()) // 인가 예외 핸들러 등록
                 .and()
                 .httpBasic().disable() // HTTP Basic 인증 비활성화
                 .formLogin().disable() // Form 로그인 비활성화
@@ -51,7 +64,9 @@ public class WebSecurityConfig {
                 .rememberMe().disable() // Remember Me 기능 비활성화
                 .headers().disable() // 응답 보안 헤더 비활성화
                 .csrf().disable() // CSRF 보호 비활성화
-                .cors().configurationSource(corsConfigurationSource()); // CORS 정책 설정
+                .cors().configurationSource(corsConfigurationSource()) // CORS 정책 설정
+                .and()
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // 인증 필터 추가
 
         return http.build();
     }
@@ -62,6 +77,16 @@ public class WebSecurityConfig {
                 .requestMatchers(CorsUtils::isPreFlightRequest) // Pre-flight 요청에 대한 Security 무시
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()) // 정적 자원에 대한 Security 무시
                 .requestMatchers(PathRequest.toH2Console()); // H2 콘솔에 대한 Security 무시
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new AuthenticationExceptionHandler();
+    }
+
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new AccessDeniedExceptionHandler();
     }
 
     @Bean
@@ -79,6 +104,47 @@ public class WebSecurityConfig {
         corsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration); // CORS 정책 적용 범위를 모든 경로로 설정
 
         return corsConfigurationSource;
+    }
+
+    @Bean
+    public AuthenticationFilter authenticationFilter(final AuthenticationManager authenticationManager,
+                                                     final AuthenticationConverter authenticationConverter) {
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, authenticationConverter);
+
+        authenticationFilter.setSuccessHandler(authenticationSuccessHandler()); // 인증 성공 핸들러 설정
+        authenticationFilter.setFailureHandler(authenticationFailureHandler()); // 인증 실패 핸들러 설정
+
+        return authenticationFilter;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthenticationConverter authenticationConverter() {
+        return new MemberAuthenticationConverter();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> SecurityContextHolder.getContext().setAuthentication(authentication); // 인증 성공 시 SecurityContextHolder에 Authentication 저장
+    }
+
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return new AuthenticationEntryPointFailureHandler(authenticationEntryPoint());
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(final AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService) {
+        return new MemberAuthenticationProvider(authenticationUserDetailsService);
+    }
+
+    @Bean
+    public AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService(final JwtProvider jwtProvider) {
+        return new MemberDetailsService(jwtProvider);
     }
 
     @Bean
