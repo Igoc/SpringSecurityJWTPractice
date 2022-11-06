@@ -47,9 +47,9 @@ public class WebSecurityConfig {
                                                    final AuthenticationFilter authenticationFilter) throws Exception {
         http.authorizeRequests() // 스프링 시큐리티 적용, 선택적으로 적용되어야 하는 보안 구성 설정에 사용 (권한에 따른 요청 허용 등)
                 .antMatchers(HttpMethod.GET, "/", "/register", "/login").permitAll() // View는 모든 사용자가 요청 가능
-                .antMatchers(HttpMethod.HEAD, "/api/member/email/**").permitAll() // 이메일 존재 여부 체크 API는 모든 사용자가 요청 가능
-                .antMatchers(HttpMethod.POST, "/api/member").permitAll() // 회원가입 API는 모든 사용자가 요청 가능
-                .antMatchers(HttpMethod.POST, "/api/member/login").permitAll() // 로그인 API는 모든 사용자가 요청 가능
+                .antMatchers(HttpMethod.HEAD, "/api/member/email/**").anonymous() // 이메일 존재 여부 체크 API는 로그인하지 않은 사용자만 요청 가능
+                .antMatchers(HttpMethod.POST, "/api/member").anonymous() // 회원가입 API는 로그인하지 않은 사용자만 요청 가능
+                .antMatchers(HttpMethod.POST, "/api/member/login").anonymous() // 로그인 API는 로그인하지 않은 사용자만 요청 가능
                 .anyRequest().authenticated() // 인증된 사용자만 요청 가능
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 비활성화

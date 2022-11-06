@@ -1,5 +1,7 @@
 package com.example.springsecurityjwt.controller;
 
+import com.example.springsecurityjwt.security.userdetails.MemberDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -12,12 +14,22 @@ public class ViewController {
     }
 
     @GetMapping("/register")
-    public String directRegisterPage() {
+    // @AuthenticationPrincipal 어노테이션을 적용하면 SecurityContext에 저장된 Authentication의 Principal을 해당 파라미터에 주입
+    public String directRegisterPage(@AuthenticationPrincipal final MemberDetails memberDetails) {
+        if (memberDetails != null) {
+            return "redirect:/";
+        }
+
         return "register";
     }
 
     @GetMapping("/login")
-    public String directLoginPage() {
+    // @AuthenticationPrincipal 어노테이션을 적용하면 SecurityContext에 저장된 Authentication의 Principal을 해당 파라미터에 주입
+    public String directLoginPage(@AuthenticationPrincipal final MemberDetails memberDetails) {
+        if (memberDetails != null) {
+            return "redirect:/";
+        }
+
         return "login";
     }
 
