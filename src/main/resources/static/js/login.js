@@ -11,7 +11,6 @@ function login() {
             'password': password
         })
     }).done(function (data) {
-        window.localStorage.setItem('accessToken', data.accessToken);
         alert('로그인을 성공했습니다.');
         window.location.replace('/');
     }).fail(function () {

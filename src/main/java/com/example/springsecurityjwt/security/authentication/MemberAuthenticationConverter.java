@@ -1,22 +1,19 @@
 package com.example.springsecurityjwt.security.authentication;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-import org.springframework.util.StringUtils;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 // HttpServletRequest를 Authentication로 변환하기 위한 클래스
 public class MemberAuthenticationConverter implements AuthenticationConverter {
-
-    public static final String AUTHENTICATION_SCHEME = "Bearer";
 
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
@@ -26,23 +23,13 @@ public class MemberAuthenticationConverter implements AuthenticationConverter {
 
     @Override
     public Authentication convert(final HttpServletRequest request) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final Cookie accessTokenCookie = WebUtils.getCookie(request, "accessToken");
 
-        if (header == null) {
+        if (accessTokenCookie == null) {
             return null;
         }
 
-        header = header.trim();
-
-        if (!StringUtils.startsWithIgnoreCase(header, AUTHENTICATION_SCHEME)) {
-            return null;
-        }
-
-        if (header.equalsIgnoreCase(AUTHENTICATION_SCHEME)) {
-            throw new BadCredentialsException("Empty " + AUTHENTICATION_SCHEME.toLowerCase() + " authentication token");
-        }
-
-        final String accessToken = header.substring(AUTHENTICATION_SCHEME.length() + 1);
+        final String accessToken = accessTokenCookie.getValue();
 
         final PreAuthenticatedAuthenticationToken result = new PreAuthenticatedAuthenticationToken(null, accessToken);
 
