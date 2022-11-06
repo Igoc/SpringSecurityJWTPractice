@@ -70,6 +70,7 @@ public class MemberService {
         }
 
         final Map<String, String> payload = new HashMap<>();
+
         payload.put("email", member.getEmail());
         payload.put("nickname", member.getNickname());
         payload.put("role", member.getRole().getDisplayName());
