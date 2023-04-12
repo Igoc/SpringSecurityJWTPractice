@@ -110,7 +110,7 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationFilter authenticationFilter(final AuthenticationManager authenticationManager,
                                                      final AuthenticationConverter authenticationConverter) {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, authenticationConverter);
+        final AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager, authenticationConverter);
 
         authenticationFilter.setSuccessHandler(authenticationSuccessHandler()); // 인증 성공 핸들러 설정
         authenticationFilter.setFailureHandler(authenticationFailureHandler()); // 인증 실패 핸들러 설정

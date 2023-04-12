@@ -36,7 +36,7 @@ public class MemberDetailsService implements AuthenticationUserDetailsService<Pr
                     .nickname(nickname)
                     .authorities(role)
                     .build();
-        } catch (JWTVerificationException ex) {
+        } catch (final JWTVerificationException ex) {
             throw new BadCredentialsException(ex.getMessage());
         }
     }
